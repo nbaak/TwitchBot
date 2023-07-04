@@ -1,6 +1,13 @@
 import asyncio
 
+# import bot.handler
+
+import bot
+from .context import Context
+
+
 class Client:
+
     def __init__(self, bot_username, channel, oauth_token):
         self.server = "irc.chat.twitch.tv"
         self.port = 6667
@@ -8,7 +15,7 @@ class Client:
         self.channel = channel
         self.oauth_token = oauth_token
         self.connected = False
-        
+
         self.opcode_handlers = {}
 
     async def connect(self):
@@ -22,6 +29,9 @@ class Client:
     async def send_message(self, message):
         self.writer.write(f"PRIVMSG #{self.channel} :{message}\n".encode("utf-8"))
         await self.writer.drain()
+
+    async def send(self, opcode, channel, message):
+        self.writer.write(f"{opcode} #{channel} :{message}\n".encode("utf-8"))
 
     async def check_connection(self):
         self.writer.write("PING :tmi.twitch.tv\n".encode("utf-8"))
@@ -43,11 +53,13 @@ class Client:
                 await handler(*args)
             else:
                 handler(*args)
-                
+
     def opcode_handler(self, opcode):
+
         def decorator(func):
             self.opcode_handlers[opcode] = func
             return func
+
         return decorator
 
     async def start(self):

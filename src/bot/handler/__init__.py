@@ -1,0 +1,1 @@
+from .privmsg import privmsg
