@@ -1,7 +1,6 @@
-
 import bot
 
 
-@bot.command('PING')
+@bot.command("PING")
 async def ping(ctx):
-    ctx.send('PONG')
+    ctx.send("PONG")

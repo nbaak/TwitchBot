@@ -21,6 +21,13 @@ class Cog:
         return None
 
 
+def get_cog_instance(classname):
+    if classname in loaded_cog_objects:
+        return loaded_cog_objects[classname]
+
+    return None
+
+
 def load_extension(path):
     path = Path(path)
 

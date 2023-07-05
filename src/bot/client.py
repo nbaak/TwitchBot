@@ -7,7 +7,6 @@ from .context import Context
 
 
 class Client:
-
     def __init__(self, bot_username, channel, oauth_token):
         self.server = "irc.chat.twitch.tv"
         self.port = 6667
@@ -55,7 +54,6 @@ class Client:
                 handler(*args)
 
     def opcode_handler(self, opcode):
-
         def decorator(func):
             self.opcode_handlers[opcode] = func
             return func
@@ -77,7 +75,9 @@ class Client:
                     await self.writer.drain()
                 elif "PRIVMSG" in resp:
                     username = resp.split("!", 1)[0].lstrip(":")
-                    message = resp.split("PRIVMSG", 1)[1].split(":", 1)[1].rstrip("\r\n")
+                    message = (
+                        resp.split("PRIVMSG", 1)[1].split(":", 1)[1].rstrip("\r\n")
+                    )
 
                     for opcode in self.opcode_handlers:
                         if message.startswith(opcode):
@@ -88,7 +88,9 @@ class Client:
             except ConnectionResetError:
                 self.connected = False
                 self.writer.close()
-                await asyncio.sleep(2)  # Wait for 2 seconds before attempting to reconnect
+                await asyncio.sleep(
+                    2
+                )  # Wait for 2 seconds before attempting to reconnect
                 continue
 
             await self.check_connection()

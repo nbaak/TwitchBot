@@ -1,0 +1,14 @@
+# TODO
+
+- write Opcode Handler for System Codes
+    PING = "PING"
+    NICK = "NICK"
+    JOIN = "JOIN"
+    PART = "PART"
+    PRIVMSG = "PRIVMSG"
+    MODE = "MODE"
+    QUIT = "QUIT"
+    
+- write Cog
+
+- solve ctx problem

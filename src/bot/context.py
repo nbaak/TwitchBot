@@ -1,7 +1,4 @@
-
-
 class Context:
-
     def __init__(self, client, opcode, user, channel, message, raw=None):
         self.client = client
         self.opcode = opcode
