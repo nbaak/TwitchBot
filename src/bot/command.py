@@ -14,7 +14,7 @@ class Command():
 
         self.is_async = is_async(func)
         self.is_method = is_method(func)
-
+        
         if self.is_method:
             self.classname = f"<class '{func.__module__}.{func.__qualname__.split('.')[0]}'>"
         else:
@@ -23,7 +23,7 @@ class Command():
     async def run(self, *args):
         if self.is_method:
             _instance = Cog.get_class(self.classname)
-            if _instance or 1:
+            if _instance:
                 await self.func(_instance, *args)
             else:
                 print(f"No Instance found for {self.classname}")
@@ -58,8 +58,8 @@ async def run(cmd, *args):
 def command(cmd):
 
     def decorator(func):
-        command = Command(cmd, func)
-
+        command = Command(cmd, func)        
+        
         if cmd in function_command_register:
             function_command_register[cmd].append(command)
         else:

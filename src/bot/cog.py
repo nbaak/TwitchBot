@@ -10,7 +10,8 @@ class Cog:
 
     def __init__(self):
         print(f"registering cog class: {self.__class__}")
-        loaded_cog_objects[str(self.__class__)] = self
+        if issubclass(self.__class__, Cog) and not str(self.__class__) in loaded_cog_objects:
+            loaded_cog_objects[str(self.__class__)] = self
 
     @staticmethod
     def get_class(classname):
@@ -27,14 +28,15 @@ def load_extension(path):
 
     for name_local in dir(module):
         if inspect.isclass(getattr(module, name_local)):
-            print(f'{name_local} is a class')
             _class = getattr(module, name_local)
             _object = _class()
 
-            if not _object.__class__ in loaded_cog_objects:
+            if not _object.__class__ in loaded_cog_objects and issubclass(_class, Cog):
                 loaded_cog_objects[str(_object.__class__)] = _object
 
 
 def debug_show_cogs():
+    print('show Cogs:')
     for k, v in loaded_cog_objects.items():
         print(k, v)
+    print()
