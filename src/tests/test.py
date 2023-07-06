@@ -17,8 +17,18 @@ async def test_ab():
     print("Test AB")
 
 
-def test(loop):
+def test_client():
+    import config
+    loop = asyncio.new_event_loop()
+    client = bot.Client(config.USERNAME, config.TOKEN, config.CHANNELS)
+    loop.run_until_complete(client.start())
+    
+    print('Test End')
+    loop.close()
+    
+def test():
     # client = bot.Client()
+    loop = asyncio.new_event_loop()
 
     for f in os.listdir("./cogs"):
         if f.endswith(".py"):
@@ -42,9 +52,8 @@ def test(loop):
     loop.run_until_complete(bot.run("PRIVMSG", "test123"))
 
     print("TEST DONE")
+    loop.close()
 
 
 if __name__ == "__main__":
-    loop = asyncio.new_event_loop()
-    test(loop)
-    loop.close()
+    test_client()

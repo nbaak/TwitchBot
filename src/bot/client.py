@@ -3,15 +3,16 @@ import asyncio
 # import bot.handler
 
 import bot
+import opcode
 from .context import Context
 
 
 class Client:
-    def __init__(self, bot_username, channel, oauth_token):
+    def __init__(self, bot_username, oauth_token, channels):
         self.server = "irc.chat.twitch.tv"
         self.port = 6667
         self.bot_username = bot_username
-        self.channel = channel
+        self.channel = channels[0] # just the first channel for now
         self.oauth_token = oauth_token
         self.connected = False
 
@@ -19,9 +20,9 @@ class Client:
 
     async def connect(self):
         self.reader, self.writer = await asyncio.open_connection(self.server, self.port)
-        self.writer.write(f"PASS {self.oauth_token}\n".encode("utf-8"))
-        self.writer.write(f"NICK {self.bot_username}\n".encode("utf-8"))
-        self.writer.write(f"JOIN #{self.channel}\n".encode("utf-8"))
+        self.send(f"PASS {self.oauth_token}")
+        self.send(f"NICK {self.bot_username}")
+        self.send(f"JOIN {self.channel}")
         await self.writer.drain()
         self.connected = True
 
@@ -29,14 +30,15 @@ class Client:
         self.writer.write(f"PRIVMSG #{self.channel} :{message}\n".encode("utf-8"))
         await self.writer.drain()
 
-    async def send(self, opcode, channel, message):
-        self.writer.write(f"{opcode} #{channel} :{message}\n".encode("utf-8"))
+    def send(self, message):
+        self.writer.write(f"{message}\n".encode("utf-8"))
 
     async def check_connection(self):
         self.writer.write("PING :tmi.twitch.tv\n".encode("utf-8"))
         await self.writer.drain()
-
-        resp = await self.reader.read(2048).decode("utf-8")
+        
+        resp = await self.reader.read(2048)
+        resp = resp.decode("utf-8")
 
         if resp.startswith("PING"):
             self.writer.write("PONG\n".encode("utf-8"))
@@ -68,8 +70,20 @@ class Client:
                 await self.connect()
 
             try:
-                resp = await self.reader.read(2048).decode("utf-8")
-
+                resp = await self.reader.read(2048)
+                resp = resp.decode("utf-8")
+                print(f"raw: {resp}")
+                # Build Context Object
+                # :k3nny0r!k3nny0r@k3nny0r.tmi.twitch.tv PRIVMSG #k3nny0r :test
+                # :k3nny0r!k3nny0r@k3nny0r.tmi.twitch.tv PRIVMSG #sadschlong :asdasd
+                message_data = resp.split(':', maxsplit=2)
+                message_data.pop(0)
+                # print(message_data)
+                com_data = message_data[0].strip().split(' ')                
+                message = message_data[-1]
+                print(com_data)
+                print(message)
+                
                 if resp.startswith("PING"):
                     self.writer.write("PONG\n".encode("utf-8"))
                     await self.writer.drain()
@@ -93,5 +107,5 @@ class Client:
                 )  # Wait for 2 seconds before attempting to reconnect
                 continue
 
-            await self.check_connection()
+            # await self.check_connection()
             await asyncio.sleep(0.1)  # Adjust the sleep time as needed
