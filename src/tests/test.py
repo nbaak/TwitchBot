@@ -20,6 +20,11 @@ async def test_ab():
 def test_client():
     import config
     loop = asyncio.new_event_loop()
+    
+    for f in os.listdir("./cogs"):
+        if f.endswith(".py"):
+            bot.load_extension(f"cogs.{f}")
+            
     client = bot.Client(config.USERNAME, config.TOKEN, config.CHANNELS)
     loop.run_until_complete(client.start())
     

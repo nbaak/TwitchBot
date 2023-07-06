@@ -1,7 +1,5 @@
 import asyncio
 
-# import bot.handler
-
 import bot
 import opcode
 from .context import Context
@@ -73,29 +71,25 @@ class Client:
                 resp = await self.reader.read(2048)
                 resp = resp.decode("utf-8")
                 print(f"raw: {resp}")
-                # Build Context Object
-                # :k3nny0r!k3nny0r@k3nny0r.tmi.twitch.tv PRIVMSG #k3nny0r :test
-                # :k3nny0r!k3nny0r@k3nny0r.tmi.twitch.tv PRIVMSG #sadschlong :asdasd
-                message_data = resp.split(':', maxsplit=2)
-                message_data.pop(0)
-                # print(message_data)
-                com_data = message_data[0].strip().split(' ')                
-                message = message_data[-1]
-                print(com_data)
-                print(message)
                 
                 if resp.startswith("PING"):
                     self.writer.write("PONG\n".encode("utf-8"))
                     await self.writer.drain()
+                    
                 elif "PRIVMSG" in resp:
+                    # get sender informations
                     username = resp.split("!", 1)[0].lstrip(":")
+                    channel = resp.split(':', maxsplit=2)[1].split(' ')[2]
                     message = (
                         resp.split("PRIVMSG", 1)[1].split(":", 1)[1].rstrip("\r\n")
                     )
-
-                    for opcode in self.opcode_handlers:
-                        if message.startswith(opcode):
-                            await self.handle_opcode(opcode, message)
+                    
+                    # handle commands here
+                    if message.startswith("!"):
+                        cmd = message.split(' ')[0].strip()
+                        ctx = Context(self, 'PRIVMSG', cmd, username, channel, message, resp)
+                        print(ctx)
+                        await bot.run(cmd, ctx)
 
                 # Add more message processing logic as needed
 
@@ -107,5 +101,5 @@ class Client:
                 )  # Wait for 2 seconds before attempting to reconnect
                 continue
 
-            # await self.check_connection()
+            # await self.check_connection() # todo: fix it?
             await asyncio.sleep(0.1)  # Adjust the sleep time as needed
