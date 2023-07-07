@@ -1,14 +1,7 @@
-# TODO
+# TODO List
 
-- write Opcode Handler for System Codes
-    PING = "PING"
-    NICK = "NICK"
-    JOIN = "JOIN"
-    PART = "PART"
-    PRIVMSG = "PRIVMSG"
-    MODE = "MODE"
-    QUIT = "QUIT"
-    
-- write Cog
+- system commands?
+    https://dev.twitch.tv/docs/irc/commands/
 
-- solve ctx problem
+- irc commands?
+    https://dev.twitch.tv/docs/irc/chat-commands/
